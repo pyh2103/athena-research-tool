@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Athena / Minerva — Museum Research Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1714;
+    --ink2: #4a4540;
+    --ink3: #8a8278;
+    --paper: #f5f1eb;
+    --paper2: #ede9e1;
+    --paper3: #e2ddd4;
+    --gold: #b8860b;
+    --gold2: #d4a017;
+    --gold-light: #f0e0a0;
+    --red: #8b2020;
+    --green: #2a5c3a;
+    --border: rgba(26,23,20,0.15);
+    --border2: rgba(26,23,20,0.08);
+    --radius: 4px;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-display);
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  /* Decorative header */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2.5rem 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(184,134,11,0.04) 40px,
+      rgba(184,134,11,0.04) 41px
+    );
+    pointer-events: none;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .header-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold2);
+    margin-bottom: 0.6rem;
+  }
+  header h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: var(--paper);
+  }
+  header h1 em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+  .header-sub {
+    margin-top: 0.75rem;
+    font-size: 15px;
+    color: rgba(245,241,235,0.6);
+    font-style: italic;
+  }
+  .header-divider {
+    margin-top: 1.5rem;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    opacity: 0.4;
+  }
+
+  /* Tip banner */
+  .tip-banner {
+    background: var(--gold-light);
+    border-left: 3px solid var(--gold);
+    padding: 0.8rem 1.2rem;
+    font-size: 14px;
+    color: var(--ink2);
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .tip-banner .tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .tip-banner strong { color: var(--ink); font-weight: 600; }
+  .tip-banner a { color: var(--gold); text-decoration: underline; }
+
+  /* Main layout */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* Section labels */
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 0.6rem;
+  }
+
+  /* Cards */
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card-title .step-num {
+    width: 22px;
+    height: 22px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  /* Form elements */
+  label {
+    display: block;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--ink2);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.05em;
+  }
+  input[type="text"], input[type="password"], select {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    background: var(--paper);
+    color: var(--ink);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  input:focus, select:focus {
+    border-color: var(--gold);
+    background: white;
+  }
+  .field-group {
+    margin-bottom: 1rem;
+  }
+  .field-hint {
+    font-size: 12px;
+    color: var(--ink3);
+    font-style: italic;
+    margin-top: 0.3rem;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* Search terms pills */
+  .terms-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+  .term-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--gold-light);
+    border: 1px solid var(--gold);
+    color: var(--ink);
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .term-pill.inactive {
+    background: var(--paper2);
+    border-color: var(--border);
+    color: var(--ink3);
+  }
+  .term-pill:hover { background: var(--gold-light); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.4rem;
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid;
+    letter-spacing: 0.05em;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .btn-primary:hover { background: var(--ink2); }
+  .btn-primary:disabled { background: var(--ink3); border-color: var(--ink3); cursor: not-allowed; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink2);
+    border-color: var(--border);
+  }
+  .btn-secondary:hover { background: var(--paper2); }
+  .btn-gold {
+    background: var(--gold);
+    color: white;
+    border-color: var(--gold);
+  }
+  .btn-gold:hover { background: var(--gold2); }
+  .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  /* Progress / status */
+  #status-area {
+    display: none;
+    margin-bottom: 1.5rem;
+  }
+  .status-box {
+    background: var(--paper2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+  }
+  .status-line {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink2);
+    margin-bottom: 0.3rem;
+  }
+  .progress-bar-wrap {
+    height: 4px;
+    background: var(--paper3);
+    border-radius: 2px;
+    margin-top: 0.75rem;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  /* Results */
+  #results-area { display: none; }
+
+  .results-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .results-count {
+    font-size: 1rem;
+    color: var(--ink2);
+  }
+  .results-count strong { color: var(--ink); font-weight: 600; }
+
+  /* Table */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead tr {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  thead th {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  thead th:first-child { width: 40px; }
+  tbody tr {
+    border-bottom: 1px solid var(--border2);
+    transition: background 0.1s;
+  }
+  tbody tr:hover { background: var(--paper2); }
+  tbody tr.excluded { opacity: 0.4; }
+  tbody td {
+    padding: 0.55rem 0.75rem;
+    vertical-align: top;
+    color: var(--ink2);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+  tbody td.title-cell {
+    font-family: var(--font-display);
+    font-size: 14px;
+    color: var(--ink);
+    min-width: 180px;
+    max-width: 260px;
+  }
+  tbody td img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 2px;
+    background: var(--paper3);
+  }
+  .img-placeholder {
+    width: 48px;
+    height: 48px;
+    background: var(--paper3);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--ink3);
+  }
+  .check-col input[type="checkbox"] { cursor: pointer; accent-color: var(--gold); width: 15px; height: 15px; }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+  }
+  .page-info {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink3);
+    margin: 0 0.5rem;
+  }
+
+  /* Export section */
+  .export-section {
+    background: var(--paper2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-top: 1rem;
+  }
+  .export-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .schema-note {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--ink3);
+    margin-bottom: 0.75rem;
+    background: white;
+    border: 1px solid var(--border2);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Error */
+  .error-box {
+    background: #fdf0f0;
+    border: 1px solid #e0aaaa;
+    border-radius: var(--radius);
+    padding: 0.8rem 1rem;
+    color: var(--red);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  /* Footer tip */
+  .footer-tip {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border2);
+    font-size: 13px;
+    color: var(--ink3);
+    font-style: italic;
+    line-height: 1.8;
+  }
+  .footer-tip strong { color: var(--ink2); font-style: normal; }
+
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .badge-green { background: #d4eadb; color: var(--green); }
+  .badge-gold  { background: var(--gold-light); color: var(--gold); }
+  .badge-gray  { background: var(--paper2); color: var(--ink3); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-eyebrow">Dissertation Research Tool · v1.0</div>
+    <h1><em>Athena &amp; Minerva</em> in World Museum Collections</h1>
+    <p class="header-sub">Search Europeana's 50+ million objects across hundreds of institutions — export to CSV for Google Sheets</p>
+    <div class="header-divider"></div>
+  </div>
+</header>
+
+<div class="tip-banner">
+  <span class="tip-icon">💡</span>
+  <span><strong>Better way tip:</strong> Europeana aggregates data from hundreds of European museums in one query — much faster than searching each museum individually. For US museums (Met, Cleveland, Chicago), separate tools can be added later. As AI and museum APIs evolve, this tool can be updated. Always worth checking if a museum has added a new open API before scraping manually.</span>
+</div>
+
+<main>
+
+  <!-- Step 1: API Key -->
+  <div class="card">
+    <div class="card-title"><span class="step-num">1</span> Connect your Europeana API key</div>
+    <div class="field-group">
+      <label for="api-key">YOUR API KEY</label>
+      <input type="password" id="api-key" placeholder="Paste your Europeana API key here…" autocomplete="off" />
+      <div class="field-hint">Your key stays in this browser tab only — it is never sent anywhere except directly to api.europeana.eu</div>
+    </div>
+    <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+      <button class="btn btn-secondary" onclick="testKey()">Test connection</button>
+      <span id="key-status" style="font-family:var(--font-mono);font-size:12px;color:var(--ink3);"></span>
+    </div>
+  </div>
+
+  <!-- Step 2: Search settings -->
+  <div class="card">
+    <div class="card-title"><span class="step-num">2</span> Configure your search</div>
+
+    <div class="field-group">
+      <label>SEARCH TERMS <span style="color:var(--ink3);font-weight:400">(click to toggle on/off)</span></label>
+      <div class="terms-row" id="terms-row">
+        <!-- filled by JS -->
+      </div>
+      <div class="field-hint">All active terms will be combined — results must match at least one</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field-group">
+        <label for="date-from">DATE RANGE — FROM (BCE use negative, e.g. -500)</label>
+        <input type="text" id="date-from" placeholder="-800" value="-800" />
+      </div>
+      <div class="field-group">
+        <label for="date-to">DATE RANGE — TO</label>
+        <input type="text" id="date-to" placeholder="500" value="500" />
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="field-group">
+        <label for="obj-type">OBJECT TYPE FILTER</label>
+        <select id="obj-type">
+          <option value="">Any type</option>
+          <option value="IMAGE" selected>Images / Photographs</option>
+          <option value="3D">3D Objects</option>
+          <option value="TEXT">Texts / Documents</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="results-per-page">RESULTS PER PAGE</label>
+        <select id="results-per-page">
+          <option value="24">24</option>
+          <option value="48" selected>48</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="sort-by">SORT BY</label>
+        <select id="sort-by">
+          <option value="">Relevance</option>
+          <option value="score desc">Score</option>
+          <option value="europeana_id asc">ID</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runSearch(1)" id="search-btn">
+        ⌕ Search Europeana
+      </button>
+      <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);margin-left:0.5rem;">This may take a few seconds…</span>
+    </div>
+  </div>
+
+  <!-- Error display -->
+  <div class="error-box" id="error-box"></div>
+
+  <!-- Status / progress -->
+  <div id="status-area">
+    <div class="status-box">
+      <div class="status-line" id="status-text">Searching…</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-area">
+    <div class="results-header">
+      <div class="results-count">Showing <strong id="shown-count">0</strong> of <strong id="total-count">0</strong> results · <span id="page-info-top"></span></div>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        <button class="btn btn-secondary" onclick="selectAll(true)" style="padding:0.3rem 0.7rem;font-size:11px;">Select all</button>
+        <button class="btn btn-secondary" onclick="selectAll(false)" style="padding:0.3rem 0.7rem;font-size:11px;">Deselect all</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table id="results-table">
+        <thead>
+          <tr>
+            <th class="check-col">✓</th>
+            <th>Image</th>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Medium / Type</th>
+            <th>Culture / Provider</th>
+            <th>Collection</th>
+            <th>Accession #</th>
+          </tr>
+        </thead>
+        <tbody id="results-tbody">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <!-- Export -->
+    <div class="export-section">
+      <div class="export-title">📥 Export to CSV</div>
+      <div class="schema-note" id="schema-note">
+        Columns: IMAGE URL · TITLE · DATE · PERIOD · MEDIUM · CULTURE · FIND LOCATION · ARTIST · TYPE · COLLECTION · ACCESSION # · DIMENSIONS · DETAILS · DEPARTMENT · CONTEXT · TAGS · IMAGE URL (thumb)
+      </div>
+      <p style="font-size:13px;color:var(--ink2);margin-bottom:0.75rem;font-style:italic;">
+        Only checked rows will be exported. The CSV columns match your existing Louvre &amp; Met schema so you can paste directly into your Google Sheet.
+      </p>
+      <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-gold" onclick="exportCSV()" id="export-btn">
+          ↓ Download CSV (<span id="selected-count">0</span> selected)
+        </button>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);">Opens in Google Sheets → File → Import</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-tip">
+    <strong>💡 Tips for better results:</strong><br>
+    — Try searching "Athena" and "Minerva" separately, as European museums often use Latin vs Greek names inconsistently.<br>
+    — Europeana includes contributions from the Louvre, national museums of Greece, Italy, Germany, the Netherlands, and many others — but coverage varies by institution.<br>
+    — For museums not covered here (British Museum, Uffizi, Naples), a separate adapter can be added to this tool.<br>
+    — <strong>Always verify image rights</strong> before publishing — Europeana shows rights status per object.
+  </div>
+
+</main>
+
+<script>
+// ─── Search terms ────────────────────────────────────────────
+const DEFAULT_TERMS = [
+  { label: 'Athena', q: 'Athena', active: true },
+  { label: 'Minerva', q: 'Minerva', active: true },
+  { label: 'Athene', q: 'Athene', active: true },
+  { label: 'Pallas', q: 'Pallas Athena', active: false },
+  { label: 'Allat-Athena', q: 'Allat Athena', active: false },
+  { label: 'Aegis', q: 'Aegis goddess', active: false },
+];
+
+let terms = JSON.parse(JSON.stringify(DEFAULT_TERMS));
+let allResults = [];
+let currentPage = 1;
+let totalResults = 0;
+
+// ─── Render terms pills ───────────────────────────────────────
+function renderTerms() {
+  const row = document.getElementById('terms-row');
+  row.innerHTML = '';
+  terms.forEach((t, i) => {
+    const pill = document.createElement('span');
+    pill.className = 'term-pill' + (t.active ? '' : ' inactive');
+    pill.textContent = t.label;
+    pill.title = `Query: "${t.q}"`;
+    pill.onclick = () => { terms[i].active = !terms[i].active; renderTerms(); };
+    row.appendChild(pill);
+  });
+}
+renderTerms();
+
+// ─── JSONP helper (bypasses CORS for local file:// use) ───────
+let _jsonpCounter = 0;
+function jsonpRequest(url) {
+  return new Promise((resolve, reject) => {
+    const cbName = '__europeana_cb_' + (++_jsonpCounter);
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      script.remove();
+      reject(new Error('Request timed out. Check your internet connection.'));
+    }, 15000);
+
+    window[cbName] = (data) => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      script.remove();
+      resolve(data);
+    };
+
+    const script = document.createElement('script');
+    script.src = url + '&callback=' + cbName;
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      script.remove();
+      reject(new Error('Network error — check your internet connection.'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+// ─── Test API key ─────────────────────────────────────────────
+async function testKey() {
+  const key = document.getElementById('api-key').value.trim();
+  const el = document.getElementById('key-status');
+  if (!key) { el.textContent = '⚠ Please enter a key first'; el.style.color='var(--red)'; return; }
+  el.textContent = 'Testing…'; el.style.color='var(--ink3)';
+  try {
+    const testUrl = 'https://api.europeana.eu/record/v2/search.json?query=Athena&rows=1&profile=minimal&wskey=' + encodeURIComponent(key);
+    let d;
+    if (window.location.protocol !== 'file:') {
+      const r = await fetch(testUrl, { headers: { 'Accept': 'application/json' } });
+      d = await r.json();
+    } else {
+      d = await jsonpRequest(testUrl);
+    }
+    if (d.success) {
+      el.textContent = '✓ Connected — key is valid';
+      el.style.color = 'var(--green)';
+    } else {
+      el.textContent = '✗ ' + (d.error || 'Invalid key');
+      el.style.color = 'var(--red)';
+    }
+  } catch(e) {
+    el.textContent = '✗ ' + e.message;
+    el.style.color = 'var(--red)';
+  }
+}
+
+// ─── Build query string ───────────────────────────────────────
+function buildQuery() {
+  const active = terms.filter(t => t.active).map(t => `"${t.q}"`);
+  if (!active.length) return null;
+  return active.join(' OR ');
+}
+
+// ─── Run search ───────────────────────────────────────────────
+async function runSearch(page) {
+  const key = document.getElementById('api-key').value.trim();
+  if (!key) { showError('Please enter your Europeana API key first.'); return; }
+
+  const query = buildQuery();
+  if (!query) { showError('Please activate at least one search term.'); return; }
+
+  const rows = parseInt(document.getElementById('results-per-page').value);
+  const start = (page - 1) * rows + 1;
+  const dateFrom = document.getElementById('date-from').value.trim();
+  const dateTo   = document.getElementById('date-to').value.trim();
+  const objType  = document.getElementById('obj-type').value;
+  const sortBy   = document.getElementById('sort-by').value;
+
+  currentPage = page;
+
+  showStatus('Searching Europeana…', 20);
+  hideError();
+  document.getElementById('results-area').style.display = 'none';
+  document.getElementById('search-btn').disabled = true;
+
+  try {
+    // Use fetch with CORS Origin header (works when hosted on GitHub Pages)
+    // Falls back to JSONP for local file:// use
+    const isLocal = window.location.protocol === 'file:';
+
+    let qParts = 'query=' + encodeURIComponent(query);
+    qParts += '&rows=' + rows;
+    qParts += '&start=' + start;
+    qParts += '&profile=rich';
+    qParts += '&thumbnail=true';
+    // Europeana's YEAR filter only works reliably for positive (CE) years
+    // For BCE ranges (negative numbers) we filter client-side after results load
+    if (dateFrom && dateTo) {
+      const dfNum = parseInt(dateFrom);
+      const dtNum = parseInt(dateTo);
+      if (dfNum >= 0 && dtNum >= 0) {
+        // Both CE: use server-side filter
+        qParts += '&qf=' + encodeURIComponent('YEAR:[' + dfNum + ' TO ' + dtNum + ']');
+      } else if (dfNum < 0 && dtNum >= 0) {
+        // BCE to CE: only filter the CE upper bound server-side
+        qParts += '&qf=' + encodeURIComponent('YEAR:[* TO ' + dtNum + ']');
+      }
+      // If both BCE: no server-side filter, rely entirely on client-side
+    }
+    if (objType) {
+      qParts += '&qf=' + encodeURIComponent('TYPE:' + objType);
+    }
+    if (sortBy) {
+      qParts += '&sort=' + encodeURIComponent(sortBy);
+    }
+
+    const baseUrl = 'https://api.europeana.eu/record/v2/search.json?' + qParts;
+
+    showStatus('Fetching records…', 50);
+
+    let data;
+    if (!isLocal) {
+      // Hosted mode: send API key as wskey param (most reliable for personal keys)
+      const urlWithKey = baseUrl + '&wskey=' + encodeURIComponent(key);
+      const resp = await fetch(urlWithKey, {
+        headers: { 'Accept': 'application/json' }
+      });
+      const json = await resp.json();
+      if (!json.success) throw new Error(json.error || json.message || 'API error (HTTP ' + resp.status + ')');
+      data = json;
+    } else {
+      // Local file fallback: use JSONP
+      const jsonpUrl = baseUrl + '&wskey=' + encodeURIComponent(key);
+      data = await jsonpRequest(jsonpUrl);
+    }
+
+    if (!data.success) throw new Error(data.error || 'API returned an error');
+
+    showStatus('Processing ' + (data.items ? data.items.length : 0) + ' records…', 80);
+    totalResults = data.totalResults || 0;
+    allResults = (data.items || []).map(parseItem);
+
+    // Client-side date filter: auto-uncheck items with dates outside the range
+    if (dateFrom && dateTo) {
+      const from = parseInt(dateFrom);
+      const to = parseInt(dateTo);
+      allResults = allResults.map(item => {
+        if (item.date) {
+          const yr = parseInt(item.date);
+          if (!isNaN(yr) && (yr < from || yr > to)) {
+            item.checked = false;
+          }
+        }
+        return item;
+      });
+    }
+
+    showStatus('Done!', 100);
+    setTimeout(() => {
+      hideStatus();
+      renderResults();
+    }, 400);
+
+  } catch(e) {
+    hideStatus();
+    // Show full diagnostic info to help debug
+    const proto = window.location.protocol;
+    const detail = e.message || String(e);
+    let msg = 'Search failed: ' + detail;
+    if (detail.toLowerCase().includes('network') || detail.toLowerCase().includes('fetch') || detail.toLowerCase().includes('failed')) {
+      msg += '<br><br><strong>Diagnostic:</strong> The browser blocked the request to Europeana. ';
+      msg += 'This is usually a CORS issue. ';
+      msg += '<br>Protocol: ' + proto;
+      msg += '<br>Try: open your browser console (F12 → Console) and look for a red CORS error.';
+    }
+    document.getElementById('error-box').innerHTML = msg;
+    document.getElementById('error-box').style.display = 'block';
+  } finally {
+    document.getElementById('search-btn').disabled = false;
+  }
+}
+
+// ─── Parse a Europeana item into our schema ───────────────────
+function parseItem(item) {
+  const get = (arr) => Array.isArray(arr) ? arr.filter(Boolean).join('; ') : (arr || '');
+  const getFirst = (arr) => Array.isArray(arr) ? (arr[0] || '') : (arr || '');
+
+  // Image URL — prefer edmIsShownBy (actual object page) or thumbnail
+  const imageUrl = getFirst(item.edmIsShownAt) || getFirst(item.guid) || '';
+  const thumbUrl = getFirst(item.edmPreview) || '';
+
+  // Title
+  const title = getFirst(item.title) || getFirst(item.dcTitleLangAware ? Object.values(item.dcTitleLangAware)[0] : null) || '[Untitled]';
+
+  // Date
+  const date = getFirst(item.year) || getFirst(item.dctermsCreated) || getFirst(item.edmTimespanLabel) || get(item.year) || '';
+
+  // Period — try to map to your vocabulary
+  const period = guessPeriod(date);
+
+  // Medium / material
+  const medium = get(item.dcMedium) || get(item.dcFormat) || get(item.edmMaterial) || '';
+
+  // Type
+  const type = get(item.type) || get(item.dcType) || '';
+
+  // Culture / origin
+  const culture = get(item.dcLanguage) || '';
+
+  // Find location / country
+  const findLocation = getFirst(item.country) || getFirst(item.edmPlaceLabel) || '';
+
+  // Artist
+  const artist = get(item.dcCreator) || get(item.edmAgent) || 'N/A';
+
+  // Collection / data provider
+  const collection = getFirst(item.dataProvider) || getFirst(item.provider) || '';
+  const department = getFirst(item.provider) || '';
+
+  // Accession # — use Europeana ID
+  const accession = item.id || '';
+
+  // Dimensions
+  const dimensions = get(item.dctermsExtent) || '';
+
+  // Description / details
+  const details = get(item.dcDescription) || get(item.dctermsDescription) || '';
+
+  // Context tags
+  const tags = [
+    ...(item.dcSubject || []),
+    ...(item.edmConceptLabel ? item.edmConceptLabel.map(c => typeof c === 'string' ? c : (c.def || '')) : []),
+  ].filter(Boolean).slice(0, 12).join(', ');
+
+  // Rights
+  const rights = getFirst(item.rights) || '';
+
+  return {
+    checked: true,
+    imageUrl,
+    thumbUrl,
+    title,
+    date,
+    period,
+    medium,
+    culture,
+    findLocation,
+    artist,
+    type,
+    collection,
+    department,
+    accession,
+    dimensions,
+    details,
+    tags,
+    rights,
+  };
+}
+
+// ─── Guess period label from date string ──────────────────────
+function guessPeriod(dateStr) {
+  if (!dateStr) return '';
+  const d = parseInt(dateStr);
+  if (isNaN(d)) {
+    const s = String(dateStr).toLowerCase();
+    if (s.includes('archaic')) return 'ARCHAIC';
+    if (s.includes('classical')) return 'CLASSICAL';
+    if (s.includes('hellenistic')) return 'HELLENISTIC';
+    if (s.includes('roman imperial') || s.includes('imperial')) return 'ROMAN IMPERIAL';
+    if (s.includes('roman republic')) return 'ROMAN REPUBLICAN';
+    if (s.includes('byzantine')) return 'BYZANTINE';
+    return '';
+  }
+  if (d < -700) return 'ARCHAIC';
+  if (d >= -700 && d < -480) return 'ARCHAIC';
+  if (d >= -480 && d < -323) return 'CLASSICAL';
+  if (d >= -323 && d < -31)  return 'HELLENISTIC';
+  if (d >= -31  && d < 284)  return 'ROMAN IMPERIAL';
+  if (d >= 284  && d < 600)  return 'LATE ANTIQUE';
+  return '';
+}
+
+// ─── Render results table ─────────────────────────────────────
+function renderResults() {
+  const tbody = document.getElementById('results-tbody');
+  tbody.innerHTML = '';
+
+  allResults.forEach((item, i) => {
+    const tr = document.createElement('tr');
+    if (!item.checked) tr.classList.add('excluded');
+
+    tr.innerHTML = `
+      <td class="check-col"><input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleRow(${i}, this.checked)"/></td>
+      <td>${item.thumbUrl
+        ? `<a href="${item.imageUrl || item.thumbUrl}" target="_blank"><img src="${item.thumbUrl}" alt="" onerror="this.parentElement.innerHTML='<div class=img-placeholder>🏺</div>'"/></a>`
+        : '<div class="img-placeholder">🏺</div>'}</td>
+      <td class="title-cell">${escHtml(item.title)}</td>
+      <td>${item.date ? escHtml(item.date) + '<br><span style="color:var(--ink3)">' + escHtml(item.period) + '</span>' : '<span style="background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:3px;font-size:11px;">date unknown</span>'}</td>
+      <td>${escHtml(item.medium || item.type)}</td>
+      <td>${escHtml(item.culture || item.findLocation)}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(item.collection)}">${escHtml(item.collection)}</td>
+      <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(item.accession)}">${escHtml(item.accession)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const rows = parseInt(document.getElementById('results-per-page').value);
+  const totalPages = Math.ceil(totalResults / rows);
+  const selected = allResults.filter(r => r.checked).length;
+
+  document.getElementById('shown-count').textContent = allResults.length;
+  document.getElementById('total-count').textContent = totalResults.toLocaleString();
+  document.getElementById('page-info-top').textContent = `Page ${currentPage} of ${totalPages}`;
+  document.getElementById('selected-count').textContent = selected;
+
+  renderPagination(totalPages);
+  document.getElementById('results-area').style.display = 'block';
+  document.getElementById('results-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ─── Pagination ───────────────────────────────────────────────
+function renderPagination(totalPages) {
+  const pg = document.getElementById('pagination');
+  pg.innerHTML = '';
+  if (totalPages <= 1) return;
+
+  const addBtn = (label, page, disabled, active) => {
+    const b = document.createElement('button');
+    b.className = 'btn btn-secondary';
+    b.style.cssText = 'padding:0.3rem 0.7rem;font-size:12px;' + (active ? 'background:var(--ink);color:var(--paper);border-color:var(--ink);' : '');
+    b.textContent = label;
+    b.disabled = disabled;
+    if (!disabled) b.onclick = () => runSearch(page);
+    pg.appendChild(b);
+  };
+
+  addBtn('← Prev', currentPage - 1, currentPage === 1, false);
+  const span = document.createElement('span');
+  span.className = 'page-info';
+  span.textContent = `${currentPage} / ${totalPages}`;
+  pg.appendChild(span);
+  addBtn('Next →', currentPage + 1, currentPage >= totalPages, false);
+
+  if (totalPages > 2) {
+    const info = document.createElement('span');
+    info.className = 'page-info';
+    info.textContent = `(${totalResults.toLocaleString()} total)`;
+    pg.appendChild(info);
+  }
+}
+
+// ─── Row toggle ───────────────────────────────────────────────
+function toggleRow(i, checked) {
+  allResults[i].checked = checked;
+  const tr = document.getElementById('results-tbody').rows[i];
+  tr.classList.toggle('excluded', !checked);
+  document.getElementById('selected-count').textContent = allResults.filter(r => r.checked).length;
+}
+
+function selectAll(val) {
+  allResults.forEach((r, i) => {
+    r.checked = val;
+    document.getElementById('results-tbody').rows[i].classList.toggle('excluded', !val);
+  });
+  document.getElementById('selected-count').textContent = val ? allResults.length : 0;
+  document.querySelectorAll('#results-tbody input[type=checkbox]').forEach(cb => cb.checked = val);
+}
+
+// ─── CSV export ───────────────────────────────────────────────
+function exportCSV() {
+  const selected = allResults.filter(r => r.checked);
+  if (!selected.length) { showError('No rows selected for export.'); return; }
+
+  // Columns match your Louvre schema as closely as possible
+  const headers = [
+    'IMAGE URL', 'Done?', 'ID', 'TITLE', 'TAGS', 'CONTEXT',
+    'AEGIS', 'MONSTERS', 'HEADWEAR', 'Animals',
+    'MEDIUM', 'DEPARTMENT', 'COLLECTION', 'DATE', 'PERIOD',
+    'ACCESSION #', 'CULTURE', 'FIND LOCATION', 'ARTIST',
+    'TYPE', 'SUB-TYPE', 'DIMENSIONS', 'DETAILS', 'IMAGE',
+    'RIGHTS', 'SOURCE'
+  ];
+
+  const rows = selected.map(r => [
+    r.imageUrl,       // IMAGE URL
+    '',               // Done?
+    r.accession,      // ID
+    r.title,          // TITLE
+    r.tags,           // TAGS
+    r.details,        // CONTEXT
+    '',               // AEGIS
+    '',               // MONSTERS
+    '',               // HEADWEAR
+    '',               // Animals
+    r.medium,         // MEDIUM
+    r.department,     // DEPARTMENT
+    r.collection,     // COLLECTION
+    r.date,           // DATE
+    r.period,         // PERIOD
+    r.accession,      // ACCESSION #
+    r.culture,        // CULTURE
+    r.findLocation,   // FIND LOCATION
+    r.artist,         // ARTIST
+    r.type,           // TYPE
+    '',               // SUB-TYPE
+    r.dimensions,     // DIMENSIONS
+    r.details,        // DETAILS
+    r.thumbUrl,       // IMAGE (thumbnail)
+    r.rights,         // RIGHTS
+    'Europeana'       // SOURCE
+  ]);
+
+  const csv = [headers, ...rows].map(row =>
+    row.map(cell => {
+      const s = String(cell || '').replace(/"/g, '""');
+      return (s.includes(',') || s.includes('"') || s.includes('\n')) ? `"${s}"` : s;
+    }).join(',')
+  ).join('\n');
+
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `athena-europeana-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── UI helpers ───────────────────────────────────────────────
+function showStatus(msg, pct) {
+  document.getElementById('status-area').style.display = 'block';
+  document.getElementById('status-text').textContent = msg;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+function hideStatus() { document.getElementById('status-area').style.display = 'none'; }
+function showError(msg) {
+  const el = document.getElementById('error-box');
+  el.textContent = '⚠ ' + msg;
+  el.style.display = 'block';
+}
+function hideError() { document.getElementById('error-box').style.display = 'none'; }
+function resetForm() {
+  terms = JSON.parse(JSON.stringify(DEFAULT_TERMS));
+  renderTerms();
+  document.getElementById('date-from').value = '-800';
+  document.getElementById('date-to').value = '500';
+  document.getElementById('obj-type').value = '';
+  document.getElementById('results-area').style.display = 'none';
+  hideError();
+}
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
